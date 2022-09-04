@@ -17,10 +17,10 @@ import {isUrlValid,filterImageFromURL, deleteLocalFiles} from './util/util';
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
   // IT SHOULD
-  //    1. validate the image_url query          DONE
-  //    2. call filterImageFromURL(image_url) to filter the image DONE
-  //    3. send the resulting file in the response DONE
-  //    4. deletes any files on the server on finish of the response DONE
+  //    1. validate the image_url query                                   DONE
+  //    2. call filterImageFromURL(image_url) to filter the image         DONE
+  //    3. send the resulting file in the response                        DONE
+  //    4. deletes any files on the server on finish of the response      DONE
   // QUERY PARAMATERS
   //    image_url: URL of a publicly accessible image 
   // RETURNS
@@ -35,20 +35,23 @@ import {isUrlValid,filterImageFromURL, deleteLocalFiles} from './util/util';
 
 
   app.get("/filteredimage", async (req, res) =>{
-      // GET REQUEST INFORMATION
-      const imageURL = req.query.image_url
-      const isURLValid=isUrlValid(imageURL)
+    // GET REQUEST INFORMATION
+    const imageURL = req.query.image_url
+    const isURLValid=isUrlValid(imageURL)
+    console.log(imageURL);
 
-      // RETURN ERROR MESSAGE IF THERE IS A CLIENT ERROR
-      if(!imageURL || !isURLValid){
-        return res.status(404).send({error:"Request is invalid!",imageURL:imageURL});
-      }
+    // RETURN ERROR MESSAGE IF THERE IS A CLIENT ERROR
+    if(!imageURL || !isURLValid){
+      return res.status(404).send({error:"Request is invalid!",imageURL:imageURL});
+    }
 
-      console.log(imageURL);
+    // FILTER THE IMAGE 
     try{
+
       const file = await filterImageFromURL(imageURL);
-      res.status(200).sendFile(file);
+      res.sendFile(file);
       res.on('finish', () => deleteLocalFiles([file]));
+
     } catch(error){
       console.log(error)
       return res.status(500).send({error: 'Unable to process your request'});
